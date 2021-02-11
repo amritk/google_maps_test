@@ -1,5 +1,7 @@
+import 'dart:html';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps/google_maps.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,25 +32,20 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
   // how it looks.
-
   // This class is the configuration for the state. It holds the values (in this
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
   final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-
   void _incrementCounter() {
     setState(() {
       // This call to setState tells the Flutter framework that something has
@@ -79,21 +76,37 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: _counter % 2 == 0
-            ? GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: LatLng(0, 0),
-                  zoom: 14.4746,
-                ),
-              )
-            : Text('This is not the map'),
+        child: _counter % 2 == 0 ? getMap() : Text('This is not the map'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: Text('click'),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+Widget getMap() {
+  String htmlId = "7";
+  // ignore: undefined_prefixed_name
+  ui.platformViewRegistry.registerViewFactory(htmlId, (int viewId) {
+    final myLatlng = LatLng(1.3521, 103.8198);
+    final mapOptions = MapOptions()
+      ..zoom = 10
+      ..center = LatLng(1.3521, 103.8198);
+    final elem = DivElement()
+      ..id = htmlId
+      ..style.width = "100%"
+      ..style.height = "100%"
+      ..style.border = 'none';
+    final map = GMap(elem, mapOptions);
+    Marker(MarkerOptions()
+      ..position = myLatlng
+      ..map = map
+      ..title = 'Hello World!');
+    return elem;
+  });
+  return HtmlElementView(viewType: htmlId);
 }
